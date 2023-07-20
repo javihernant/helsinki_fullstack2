@@ -86,13 +86,11 @@ app.post('/api/persons', (request, response) => {
             error: 'contact already stored' 
         })
     }
-    const person = {
-        id: genBigRandom(),
-        name: body.name,
-        number: body.number
-    }
-    persons = persons.concat(person)
-    response.json(person)
+    const person = new Person({
+            name: body.name,
+            number: body.number
+        })
+    person.save().then((p)=> {response.json(p)})
 })
 
 const PORT = process.env.PORT || 3001
