@@ -3,6 +3,7 @@ var morgan = require('morgan')
 
 const app = express()
 
+app.use(express.static('build'))
 app.use(express.json())
 
 morgan.token('reqBody', function getBody (req) {
