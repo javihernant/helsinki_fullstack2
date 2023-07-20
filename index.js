@@ -48,8 +48,8 @@ app.get('/info', (request, response) => {
 app.get('/api/persons', (request, response) => {
     Person.find({}).then(persons => {
         response.json(persons)
-        mongoose.connection.close()
     })
+    .catch(error => console.log("error at fetching db entries", error))
 })
 
 app.get('/api/persons/:id', (request, response) => {
