@@ -42,7 +42,11 @@ let persons = [
     }
 ]
 app.get('/info', (request, response) => {
-    response.send(`<p>Phonebook has info for ${persons.length} people</p><p>${Date()}</p>`)
+    Person.find({}).then(persons => {
+        response.send(`<p>Phonebook has info for ${persons.length} people</p><p>${Date()}</p>`)
+    })
+    .catch(error => console.log("error at fetching db entries", error))
+    
 })
 
 app.get('/api/persons', (request, response) => {
@@ -52,20 +56,22 @@ app.get('/api/persons', (request, response) => {
     .catch(error => console.log("error at fetching db entries", error))
 })
 
-app.get('/api/persons/:id', (request, response) => {
-    const id = Number(request.params.id)
-    const person = persons.find(p => p.id === id)
-    if (person) {
-        response.json(person)
-    } else {
-        response.status(404).end()
-    }
+app.get('/api/persons/:id', (request, response, next) => {
+    Person.findById(request.params.id)
+        .then(person => {
+            if (person) {
+                response.json(person)
+            } else {
+                response.status(404).end()
+            }
+        })
+        .catch(err => next(err))
 })
 
 app.delete('/api/persons/:id', (request, response) => {
-    const id = Number(request.params.id)
-    persons = persons.filter(person => person.id !== id)
-    response.status(204).end()
+    Person.findByIdAndRemove(request.params.id)
+        .then(result => {response.status(204).end()})
+        .catch(err => next(err))
 })
 
 app.post('/api/persons', (request, response) => { 
@@ -81,17 +87,49 @@ app.post('/api/persons', (request, response) => {
           error: 'number is missing' 
         })
     }
-    if (persons.map(p => p.name ).includes(body.name)) {
-        return response.status(400).json({ 
-            error: 'contact already stored' 
-        })
-    }
+
     const person = new Person({
             name: body.name,
             number: body.number
-        })
+    })
     person.save().then((p)=> {response.json(p)})
 })
+
+app.put('/api/persons/:id', (req, resp, next) => {
+    const body = req.body
+    const person = {
+        name: body.name,
+        number: body.number
+    }
+    Person.findByIdAndUpdate(req.params.id, person, {new: true})
+        .then(updatedPerson => {
+            if (updatedPerson) {
+                resp.json(updatedPerson)
+            } else {
+                resp.status(404).end()
+            }
+        })
+        .catch(err => next(err))
+})
+
+const unknownEndpoint = (request, response) => {
+    response.status(404).send({ error: 'unknown endpoint' })
+}
+  
+// handler of requests with unknown endpoint
+app.use(unknownEndpoint)
+
+const errorHandler = (error, request, response, next) => {
+    console.error(error.message)
+  
+    if (error.name === 'CastError') {
+      return response.status(400).send({ error: 'malformatted id' })
+    } 
+  
+    next(error)
+}
+  
+app.use(errorHandler)
 
 const PORT = process.env.PORT || 3001
 app.listen(PORT, () => {
