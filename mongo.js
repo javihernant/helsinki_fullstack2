@@ -12,9 +12,9 @@ mongoose.connect(url)
 
 
 const personSchema = new mongoose.Schema({
-        name: String,
-        number: Number,
-    })
+    name: String,
+    number: Number,
+})
 
 personSchema.set('toJSON', {
     transform: (document, returnedObject) => {
@@ -23,7 +23,7 @@ personSchema.set('toJSON', {
         delete returnedObject.__v
     }
 })
-      
+
 
 const Person = mongoose.model('Person', personSchema)
 
@@ -39,11 +39,11 @@ if (process.argv.length === 3) {
 } else {
     const name = process.argv[3]
     const number = Number(process.argv[4])
-    const person = new Person({name, number})
-    person.save().then(result => {
-        console.log("person saved")
+    const person = new Person({ name, number })
+    person.save().then(() => {
+        console.log('person saved')
         mongoose.connection.close()
     })
-    
+
 
 }
