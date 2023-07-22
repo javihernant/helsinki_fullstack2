@@ -20,6 +20,29 @@ Content-Type: application/json
     "number": "95414233"
 }
 ###
+POST http://localhost:3001/api/persons
+Content-Type: application/json
+
+{
+    "number": "95414233"
+}
+###
+POST http://localhost:3001/api/persons
+Content-Type: application/json
+
+{
+    "name": "av",
+    "number": "95414233"
+}
+###
+POST http://localhost:3001/api/persons
+Content-Type: application/json
+
+{
+    "name": "amargura",
+    "number": "avre42"
+}
+###
 PUT http://localhost:3001/api/persons/64bbec4724770869fc46ae6b
 Content-Type: application/json
 
